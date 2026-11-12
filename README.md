@@ -1,84 +1,75 @@
-# ☕ Kopi dan Nyemil - Mobile Ordering App
+# Kopi dan Nyemil ☕🍩
 
-![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
-![Android](https://img.shields.io/badge/Android-Studio-3DDC84?style=for-the-badge&logo=android&logoColor=white)
-![UI](https://img.shields.io/badge/UI-Material%20Design%203-F5CBA7?style=for-the-badge)
+**Kopi dan Nyemil** adalah aplikasi purwarupa (prototype) berbasis Android untuk pemesanan makanan dan minuman kopi. Aplikasi ini mensimulasikan alur pengguna yang lengkap, mulai dari autentikasi hingga proses konfirmasi pengiriman pesanan, dengan antarmuka yang modern, responsif, dan dinamis.
 
-**Kopi dan Nyemil** adalah aplikasi mobile Android untuk pemesanan kopi dan camilan (*pastry/snack*) dengan antarmuka yang modern, bersih, dan ramah pengguna. Proyek ini dibangun berdasarkan spesifikasi desain *wireframe* dengan alur lengkap mulai dari pengenalan aplikasi, autentikasi pengguna, penelusuran katalog menu, pengelolaan profil, hingga konfirmasi pengiriman pesanan.
+Proyek ini dibangun untuk memenuhi tugas pengembangan aplikasi Android modern menggunakan arsitektur antarmuka deklaratif.
 
 ---
+
+## 📖 Deskripsi Aplikasi
+
+Aplikasi "Kopi dan Nyemil" dirancang khusus dengan alur pengguna (*user flow*) yang kohesif. Meskipun menggunakan *in-memory data* (tanpa database), aplikasi ini mampu menyimpan state nama pengguna secara dinamis saat melakukan Login atau Registrasi. Nama pengguna tersebut akan diteruskan secara konsisten dan digunakan sebagai sapaan personal ("Halo [Nama],") di berbagai layar seperti Home, Profile, dan Konfirmasi Pesanan.
 
 ## ✨ Fitur Utama
 
-Aplikasi ini mengimplementasikan 8 tampilan utama yang saling terintegrasi tanpa memerlukan basis data eksternal (*menggunakan in-memory/static dummy data*):
+Aplikasi ini mencakup **8 layar (screen) utama**, yaitu:
 
-1. **Splash / Welcome Screen**: Halaman pembuka yang menampilkan identitas visual (logo), nama aplikasi, *tagline* *"Get a taste of your wish"*, dan tombol aksi untuk memulai.
-2. **Sign Up (Auth Landing)**: Halaman sambutan bagi pengguna untuk memilih masuk ke akun yang sudah ada (*Login*) atau mendaftar sebagai pengguna baru (*Register*).
-3. **Login User**: Formulir masuk menggunakan *username* dan *password*.
-4. **Register**: Formulir pendaftaran pengguna baru yang mencakup *nama lengkap*, *username*, dan *password*.
-5. **Home (Katalog Makanan & Minuman)**: Menampilkan sapaan dinamis (`Halo [Nama],`) serta daftar katalog menu makanan dan minuman lengkap dengan foto, komposisi singkat, dan harga.
-6. **Profile Saya**: Halaman pengaturan profil untuk melihat dan memperbarui nama pengguna secara *real-time* di dalam sesi aplikasi.
-7. **Alamat Pengiriman (Order)**: Formulir detail pengiriman yang memuat input *Nama Lengkap*, *Alamat*, serta *Patokan atau detail lengkap* sebelum pesanan diproses.
-8. **Konfirmasi Pesanan**: Halaman status akhir pemesanan yang menginformasikan bahwa pesanan telah diterima dan kurir sedang dalam perjalanan.
+1. **Splash / Welcome Screen**: Layar pembuka yang elegan untuk menyambut pengguna sebelum mulai berinteraksi dengan aplikasi.
+2. **Sign Up Landing Screen**: Halaman arahan yang memberikan pengguna pilihan untuk mendaftar (Register) atau masuk (Login).
+3. **Login Screen**: Formulir untuk pengguna yang sudah memiliki akun (menyimpan *username* secara dinamis).
+4. **Register Screen**: Formulir pendaftaran untuk pengguna baru (menyimpan *nama lengkap* secara dinamis).
+5. **Home Screen**: Halaman utama yang menampilkan sapaan dinamis pengguna dan katalog daftar menu yang terdiri dari 5 menu statis (Kopi Susu Gula Aren, Donat Cokelat, Sourdough Loaf, Cappuccino, dan Matcha Latte) dengan gambar menarik.
+6. **Profile Screen**: Layar profil yang menampilkan nama aktif saat ini dan dilengkapi fitur untuk mengubah (*update*) nama pengguna yang ditampilkan.
+7. **Alamat Pengiriman (Order Address)**: Formulir pengisian detail alamat pengiriman untuk proses pemesanan.
+8. **Konfirmasi Pesanan**: Halaman terakhir yang memberitahukan pengguna bahwa pesanan telah berhasil dibuat dan siap diantarkan.
 
----
-
-## 🥐 Daftar Menu (Static Dummy Data)
-
-Sesuai ketentuan aplikasi, halaman **Home** menampilkan 5 item makanan dan minuman statis berikut:
-
-| No | Nama Menu | Deskripsi | Harga |
-| :-: | :--- | :--- | :--- |
-| 1 | **Kopi Susu Gula Aren** | Espresso, susu, gula aren | Rp 22.000 |
-| 2 | **Donat Cokelat** | Donat empuk, glaze cokelat | Rp 12.000 |
-| 3 | **Sourdough Loaf** | Roti fermentasi alami | Rp 35.000 |
-| 4 | **Cappuccino** | Espresso, foam susu lembut | Rp 25.000 |
-| 5 | **Matcha Latte** | Matcha Jepang, susu segar | Rp 27.000 |
+Aplikasi juga didukung oleh **Bottom Navigation Bar** untuk kemudahan navigasi antara halaman Home, Order, dan Profile.
 
 ---
 
 ## 🛠️ Teknologi yang Digunakan
 
-* **Bahasa Pemrograman**: Kotlin
-* **UI Toolkit**: Jetpack Compose (Material Design 3) / Android XML Views *(sesuaikan salah satu)*
-* **Navigasi**: Jetpack Navigation Compose / Explicit Intent & Bottom Navigation
-* **Manajemen Data**: *Static Dummy Data* & *In-Memory State* (tanpa *database*)
-* **IDE & Build Tool**: Android Studio & Gradle (Kotlin DSL)
+- **IDE:** Android Studio
+- **Bahasa Pemrograman:** Kotlin
+- **UI Toolkit:** Jetpack Compose (Modern Declarative UI)
+- **Navigasi:** Jetpack Navigation Compose
+- **Desain & Tema:** Material Design 3 (M3)
+- **Penyimpanan Data:** *In-Memory Dummy Data* (State & ViewModel / `rememberSaveable`)
 
 ---
 
 ## 🚀 Cara Menjalankan Aplikasi
 
-Ikuti langkah-langkah berikut untuk menjalankan proyek ini di perangkat lokal Anda:
+Ikuti langkah-langkah di bawah ini untuk menjalankan proyek ini di mesin lokal Anda:
 
-1. **Clone repositori ini** ke komputer Anda menggunakan terminal atau Git Bash:
+1. **Clone Repository**
+   Buka terminal atau command prompt, lalu jalankan perintah berikut:
    ```bash
-   git clone [https://github.com/4rKana/kopi-dan-nyemil.git](https://github.com/4rKana/kopi-dan-nyemil.git)
+   git clone https://github.com/username-anda/KopiDanNyemil.git
    ```
-2. Buka **Android Studio**, pilih menu **Open**, lalu arahkan ke folder proyek hasil *clone* tadi.
-3. Tunggu hingga proses **Gradle Sync** selesai mengunduh seluruh dependensi yang dibutuhkan.
-4. Siapkan **Android Emulator** (AVD) atau hubungkan perangkat Android fisik menggunakan kabel USB (pastikan *USB Debugging* aktif).
-5. Klik tombol **Run 'app'** (`Shift + F10`) di bagian atas Android Studio.
+2. **Buka Proyek di Android Studio**
+   - Buka aplikasi **Android Studio**.
+   - Pilih **File > Open**, lalu arahkan ke direktori folder proyek hasil clone.
+3. **Sinkronisasi Gradle**
+   Tunggu hingga proses sinkronisasi *Gradle build* selesai. Jika gagal, klik ikon **Sync Project with Gradle Files** di bagian atas toolbar Android Studio.
+4. **Jalankan Aplikasi**
+   - Sambungkan perangkat fisik (menggunakan kabel USB dengan opsi *USB Debugging* aktif) atau jalankan Emulator Android (AVD).
+   - Klik tombol **Run 'app'** (ikon panah hijau ▶) di toolbar atas.
 
 ---
 
-## 📱 Screenshot Tampilan Aplikasi
+## 📸 Screenshot Tampilan
 
-> *Catatan: Simpan gambar screenshot aplikasi Anda di dalam folder `screenshots/` pada repositori ini dengan nama file yang sesuai di bawah ini.*
+*(Tambahkan path gambar lokal atau URL gambar di bagian yang kosong pada tabel di bawah ini)*
 
-| 1. Splash / Welcome | 2. Sign Up | 3. Login User | 4. Register |
+| Splash / Welcome | Sign Up Landing | Login Screen | Register Screen |
 | :---: | :---: | :---: | :---: |
-| <img src="screenshots/1_splash.png" width="200" alt="Splash Screen"/> | <img src="screenshots/2_signup.png" width="200" alt="Sign Up Screen"/> | <img src="screenshots/3_login.png" width="200" alt="Login Screen"/> | <img src="screenshots/4_register.png" width="200" alt="Register Screen"/> |
+| <img src="screenshots/1_splash.png" width="200" alt="Splash Screen"> | <img src="screenshots/2_landing.png" width="200" alt="Landing Screen"> | <img src="screenshots/3_login.png" width="200" alt="Login Screen"> | <img src="screenshots/4_register.png" width="200" alt="Register Screen"> |
 
-| 5. Home | 6. Profile | 7. Alamat Pengiriman | 8. Konfirmasi Pesanan |
+| Home Screen | Profile Screen | Order Address | Konfirmasi Pesanan |
 | :---: | :---: | :---: | :---: |
-| <img src="screenshots/5_home.png" width="200" alt="Home Screen"/> | <img src="screenshots/6_profile.png" width="200" alt="Profile Screen"/> | <img src="screenshots/7_alamat.png" width="200" alt="Alamat Screen"/> | <img src="screenshots/8_konfirmasi.png" width="200" alt="Konfirmasi Screen"/> |
+| <img src="screenshots/5_home.png" width="200" alt="Home Screen"> | <img src="screenshots/6_profile.png" width="200" alt="Profile Screen"> | <img src="screenshots/7_order.png" width="200" alt="Order Address"> | <img src="screenshots/8_confirm.png" width="200" alt="Konfirmasi Pesanan"> |
 
 ---
 
-## 👤 Pengembang
-
-* **Nama**: Arya Fabio Ismail
-* **NIM**: 1247050080
-* **Program Studi**: Teknik Informatika — UIN Sunan Gunung Djati Bandung
-* **GitHub**: [@4rKana](https://github.com/4rKana)
+<p align="center">Dibuat dengan ❤️ untuk Tugas Aplikasi Android Kopi dan Nyemil</p>

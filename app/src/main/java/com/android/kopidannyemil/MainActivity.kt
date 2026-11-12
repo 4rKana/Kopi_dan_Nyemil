@@ -15,6 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,12 +32,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.android.kopidannyemil.ui.theme.KopiDanNyemilTheme
+import com.android.kopidannyemil.ui.MenuViewModel
+import com.android.kopidannyemil.data.MenuItemEntity
 
 // Colors
 val PrimaryBlack = Color(0xFF1C1C1E)
@@ -55,14 +61,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun KopiApp() {
+fun KopiApp(menuViewModel: MenuViewModel = viewModel()) {
     val navController = rememberNavController()
     var userName by rememberSaveable { mutableStateOf("") }
     
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     
-    val showBottomNav = currentRoute in listOf("home", "profile", "order_address")
+    val showBottomNav = currentRoute in listOf("home", "profile", "cart")
     
     Scaffold(
         bottomBar = {
@@ -110,7 +116,13 @@ fun KopiApp() {
                 )
             }
             composable("home") {
-                HomeScreen(userName = userName)
+                HomeScreen(
+                    userName = userName,
+                    menuViewModel = menuViewModel,
+                    onAddToCart = { menuItem ->
+                        menuViewModel.addToCart(menuItem)
+                    }
+                )
             }
             composable("profile") {
                 ProfileScreen(
@@ -118,8 +130,10 @@ fun KopiApp() {
                     onNameChanged = { userName = it }
                 )
             }
-            composable("order_address") {
-                OrderAddressScreen(
+            composable("cart") {
+                CartScreen(
+                    userName = userName,
+                    menuViewModel = menuViewModel,
                     onNavigateToConfirm = { navController.navigate("order_confirmation") }
                 )
             }
@@ -127,6 +141,7 @@ fun KopiApp() {
                 OrderConfirmationScreen(
                     userName = userName,
                     onNavigateToHome = {
+                        menuViewModel.resetCheckoutStatus()
                         navController.navigate("home") {
                             popUpTo("home") { inclusive = true }
                         }
@@ -165,18 +180,18 @@ fun BottomNavBar(navController: NavHostController, currentRoute: String?) {
             )
         )
         NavigationBarItem(
-            selected = currentRoute == "order_address",
+            selected = currentRoute == "cart",
             onClick = {
-                if (currentRoute != "order_address") {
-                    navController.navigate("order_address") {
+                if (currentRoute != "cart") {
+                    navController.navigate("cart") {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
                 }
             },
-            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Order") },
-            label = { Text("Order") },
+            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Keranjang") },
+            label = { Text("Keranjang") },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.White,
                 selectedTextColor = PrimaryBlack,
@@ -382,17 +397,9 @@ fun RegisterScreen(onRegisterSuccess: (String) -> Unit) {
     }
 }
 
-data class MenuItem(val name: String, val description: String, val price: String, val imageResId: Int)
-
 @Composable
-fun HomeScreen(userName: String) {
-    val menuItems = listOf(
-        MenuItem("Kopi Susu Gula Aren", "Espresso, susu, gula aren", "Rp 22.000", R.drawable.kopi_susu_gula_aren),
-        MenuItem("Donat Cokelat", "Donat empuk, glaze cokelat", "Rp 12.000", R.drawable.donat_cokelat),
-        MenuItem("Sourdough Loaf", "Roti fermentasi alami", "Rp 35.000", R.drawable.sourdough_loaf),
-        MenuItem("Cappuccino", "Espresso, foam susu lembut", "Rp 25.000", R.drawable.cappuccino),
-        MenuItem("Matcha Latte", "Matcha Jepang, susu segar", "Rp 27.000", R.drawable.matcha_latte)
-    )
+fun HomeScreen(userName: String, menuViewModel: MenuViewModel, onAddToCart: (MenuItemEntity) -> Unit) {
+    val menuItems by menuViewModel.menuItems.collectAsState()
     
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)
@@ -426,12 +433,27 @@ fun HomeScreen(userName: String) {
                         
                         Spacer(modifier = Modifier.width(16.dp))
                         
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(item.name, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryBlack)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text("• ${item.description}", fontSize = 14.sp, color = Color.DarkGray)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text("• ${item.price}", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = PrimaryBlack)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("• Stok: ${item.stock}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if (item.stock > 0) Color(0xFF27AE60) else Color.Red)
+                        }
+                        
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        Button(
+                            onClick = { onAddToCart(item) },
+                            enabled = item.stock > 0,
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlack),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text("+ Keranjang", fontSize = 12.sp, color = Color.White)
                         }
                     }
                 }
@@ -478,52 +500,104 @@ fun ProfileScreen(userName: String, onNameChanged: (String) -> Unit) {
 }
 
 @Composable
-fun OrderAddressScreen(onNavigateToConfirm: () -> Unit) {
-    var fullName by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
-    var details by remember { mutableStateOf("") }
+fun CartScreen(userName: String, menuViewModel: MenuViewModel, onNavigateToConfirm: () -> Unit) {
+    val cartItems by menuViewModel.cartItems.collectAsState()
+    val cartTotal by menuViewModel.cartTotal.collectAsState()
+    val checkoutSuccess by menuViewModel.checkoutSuccess
+    val checkoutError by menuViewModel.checkoutError
+    
+    LaunchedEffect(checkoutSuccess) {
+        if (checkoutSuccess) {
+            onNavigateToConfirm()
+        }
+    }
     
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp)
     ) {
         Spacer(modifier = Modifier.height(48.dp))
-        Text("Alamat", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = PrimaryBlack)
-        Spacer(modifier = Modifier.height(32.dp))
+        Text("Keranjang", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = PrimaryBlack)
+        Spacer(modifier = Modifier.height(24.dp))
         
-        OutlinedTextField(
-            value = fullName,
-            onValueChange = { fullName = it },
-            label = { Text("Nama Lengkap") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = address,
-            onValueChange = { address = it },
-            label = { Text("Alamat") },
-            modifier = Modifier.fillMaxWidth().height(120.dp),
-            shape = RoundedCornerShape(12.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = details,
-            onValueChange = { details = it },
-            label = { Text("Patokan atau detail lengkap") },
-            modifier = Modifier.fillMaxWidth().height(120.dp),
-            shape = RoundedCornerShape(12.dp)
-        )
-        
-        Spacer(modifier = Modifier.weight(1f))
-        
-        Button(
-            onClick = onNavigateToConfirm,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlack),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Order dan Kirim", fontSize = 18.sp, color = Color.White)
+        if (cartItems.isEmpty()) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text("Keranjang masih kosong", color = Color.Gray, fontSize = 16.sp)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(cartItems) { item ->
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = CreamAccent),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(item.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = PrimaryBlack)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Rp ${item.price}", fontSize = 14.sp, color = PrimaryBlack)
+                            }
+                            
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    onClick = { menuViewModel.updateCartItemQuantity(item, false) },
+                                    modifier = Modifier.size(32.dp).background(Color.White, CircleShape)
+                                ) {
+                                    Icon(
+                                        if (item.quantity > 1) Icons.Default.Clear else Icons.Default.Delete,
+                                        contentDescription = "Kurangi",
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                
+                                Text(
+                                    "${item.quantity}",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 12.dp),
+                                    fontSize = 16.sp
+                                )
+                                
+                                IconButton(
+                                    onClick = { menuViewModel.updateCartItemQuantity(item, true) },
+                                    modifier = Modifier.size(32.dp).background(PrimaryBlack, CircleShape)
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = "Tambah", tint = Color.White, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            checkoutError?.let {
+                Text(it, color = Color.Red, fontSize = 14.sp, modifier = Modifier.padding(bottom = 8.dp))
+            }
+            
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Total:", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Rp $cartTotal", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, color = PrimaryBlack)
+            }
+            
+            Button(
+                onClick = { menuViewModel.checkout() },
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlack),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Checkout", fontSize = 18.sp, color = Color.White)
+            }
         }
         Spacer(modifier = Modifier.height(32.dp))
     }
